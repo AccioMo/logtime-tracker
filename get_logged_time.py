@@ -2,13 +2,12 @@ import datetime
 import os
 
 logtime = 0
-
+start = datetime.datetime.now()
+end = datetime.datetime.now()
 log_path = os.path.expanduser("~/.screen.log")
 if os.path.exists(log_path):
 	with open(log_path, "r") as f:
 		lines = f.readlines()
-		start = datetime.datetime.strptime(lines[0].strip()[7:], "%Y-%m-%d %H:%M:%S")
-		end = start
 		for line in lines:
 			line = line.strip()
 			if "unlocked" in line[:8]:
