@@ -32,7 +32,6 @@ def get_new_logtime():
 class ScreenLockObserver(NSObject):
 	def screenLocked_(self, notification):
 		logtime = get_new_logtime()
-		print("locked ", logtime)
 		with open(LOGPATH, "w") as f:
 			f.write(f"{logtime}")
 
@@ -40,6 +39,11 @@ class ScreenLockObserver(NSObject):
 		logtime = get_logtime()
 		with open(LOGPATH, "w") as f:
 			f.write(f"{logtime} {get_current_time()}")
+
+	def userLoggedOut_(self, notification):
+		logtime = get_new_logtime()
+		with open(LOGPATH, "w") as f:
+			f.write(f"{logtime}")
 
 def main():
 	observer = ScreenLockObserver.new()
@@ -55,6 +59,12 @@ def main():
 		observer,
 		"screenUnlocked:",
 		"com.apple.screenIsUnlocked",
+		None,
+	)
+	notification_center.addObserver_selector_name_object_(
+		observer,
+		"userLoggedOut:",
+		"com.apple.logoutInitiated",
 		None,
 	)
 
