@@ -1,4 +1,6 @@
 import datetime
+import calendar
+import sys
 import os
 
 def get_new_logtime():
@@ -20,6 +22,23 @@ def main():
 	if logtime == -1:
 		print("No logs found.")
 		return
+
+	if len(sys.argv) > 1:
+		now = datetime.datetime.now()
+		target_time = datetime.datetime.strptime(sys.argv[1], "%H:%M")
+		day = now.day
+		month = now.month
+		year = now.year
+		if (now.hour > target_time.hour or (now.hour == target_time.hour and now.minute > target_time.minute)):
+			day += 1
+		if (day) > calendar.monthrange(now.year, now.month)[1]:
+			month += 1
+			day = 1
+		if month > 12:
+			year += 1
+			month = 1
+		target_time = target_time.replace(year=year, month=month, day=day)
+		logtime += (target_time - datetime.datetime.now()).total_seconds()
 	hours = int(logtime // 3600)
 	minutes = int(logtime // 60 % 60)
 	seconds = int(logtime % 60)
