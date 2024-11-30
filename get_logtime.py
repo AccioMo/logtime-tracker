@@ -23,7 +23,7 @@ def main():
 	hours = int(logtime // 3600)
 	minutes = int(logtime // 60 % 60)
 	seconds = int(logtime % 60)
-	print(f"logtime: {hours:02}:{minutes:02}:{seconds:02}")
+	print(f"{hours:02}:{minutes:02}:{seconds:02} | {(logtime/(120*60*60))*100:.2f}%")
 
 if __name__ == "__main__":
 	main()
