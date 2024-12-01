@@ -1,4 +1,5 @@
 import datetime
+import psutil
 import calendar
 import sys
 import os
@@ -17,13 +18,8 @@ def get_new_logtime():
 			return logtime
 	return -1
 
-def main():
-	logtime = get_new_logtime()
-	if logtime == -1:
-		print("No logs found.")
-		return
-
-	if len(sys.argv) > 1:
+def get_logtime_by_date(logtime, date):
+	try:
 		now = datetime.datetime.now()
 		target_time = datetime.datetime.strptime(sys.argv[1], "%H:%M")
 		day = now.day
@@ -39,6 +35,20 @@ def main():
 			month = 1
 		target_time = target_time.replace(year=year, month=month, day=day)
 		logtime += (target_time - datetime.datetime.now()).total_seconds()
+		return logtime
+	except ValueError as e:
+		print("Invalid format: use HH:MM")
+		exit(1)
+
+def main():
+	logtime = get_new_logtime()
+	if logtime == -1:
+		print("No logs found.")
+		return
+
+	if len(sys.argv) > 1:
+		logtime = get_logtime_by_date(logtime, sys.argv[1])
+	
 	hours = int(logtime // 3600)
 	minutes = int(logtime // 60 % 60)
 	seconds = int(logtime % 60)

@@ -1,11 +1,23 @@
 from Foundation import NSObject, NSDistributedNotificationCenter
 from PyObjCTools import AppHelper
 import datetime
+import psutil
 import objc
 import os
 
 LOGFILE = "~/.screen.log"
 LOGPATH = os.path.expanduser(LOGFILE)
+
+def is_script_running(script_name):
+	current_pid = os.getpid()
+	for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+		try:
+			if proc.info['pid'] != current_pid and proc.info['cmdline'] != None and any(script_name in cmd for cmd in proc.info['cmdline']):
+				print(f"Script is already running with PID: {proc.info['pid']}")
+				return True
+		except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+			pass
+	return False
 
 def get_current_time():
 	return datetime.datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
@@ -46,6 +58,8 @@ class ScreenLockObserver(NSObject):
 			f.write(f"{logtime}")
 
 def main():
+	if is_script_running("logtime_tracker.py"):
+		return
 	observer = ScreenLockObserver.new()
 	notification_center = NSDistributedNotificationCenter.defaultCenter()
 

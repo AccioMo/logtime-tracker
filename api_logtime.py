@@ -84,6 +84,8 @@ calculate_logged_time(data)
 
 write_to_file("log", "Screen locked: " + get_current_date()[0])
 
+res = requests.get("https://api.intra.42.fr/v2/campus/29", headers)
+
 # with open("data.json", "w") as f:
 # 	json_data = json.dumps(data)
 # 	f.write(json_data)
