@@ -4,19 +4,38 @@ import calendar
 import sys
 import os
 
+LOGFILE = "~/.screen.log"
+LOGPATH = os.path.expanduser(LOGFILE)
+
+def get_logtime_end_date():
+	now = datetime.datetime.now()
+	month = now.month
+	day = now.day
+	year = now.year
+	if (day >= 28):
+		month += 1
+	if (month > 12):
+		year += 1
+		month = 1
+	end = datetime.datetime(hour=0, minute=0, second=0, day=28, month=month, year=year)
+	return end
+
 def get_new_logtime():
 	now = datetime.datetime.now()
-	log_path = os.path.expanduser("~/.screen.log")
-	if os.path.exists(log_path):
-		with open(log_path, "r") as f:
+	if os.path.exists(LOGPATH):
+		with open(LOGPATH, "r") as f:
 			logs = f.read().split(" ")
 			logtime = float(logs[0])
+			end = get_logtime_end_date()
 			if len(logs) == 1:
 				return logtime
 			unlocked = datetime.datetime.strptime(logs[1], "%Y:%m:%d:%H:%M:%S")
-			logtime += (now - unlocked).total_seconds()
+			if unlocked < end and now > end:
+				logtime = (now - end).total_seconds()
+			else:
+				logtime += (now - unlocked).total_seconds()
 			return logtime
-	return -1
+	return 0
 
 def get_logtime_by_date(logtime, date):
 	try:
