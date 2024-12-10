@@ -20,22 +20,16 @@ def get_logtime_end_date():
 	end = datetime.datetime(hour=0, minute=0, second=0, day=28, month=month, year=year)
 	return end
 
-def get_new_logtime():
+def get_new_logtime(logtime, lockscreen):
 	now = datetime.datetime.now()
-	if os.path.exists(LOGPATH):
-		with open(LOGPATH, "r") as f:
-			logs = f.read().split(" ")
-			logtime = float(logs[0])
-			end = get_logtime_end_date()
-			if len(logs) == 1:
-				return logtime
-			unlocked = datetime.datetime.strptime(logs[1], "%Y:%m:%d:%H:%M:%S")
-			if unlocked < end and now > end:
-				logtime = (now - end).total_seconds()
-			else:
-				logtime += (now - unlocked).total_seconds()
-			return logtime
-	return 0
+	logtime = float(logtime)
+	end = get_logtime_end_date()
+	unlocked = datetime.datetime.strptime(lockscreen, "%Y:%m:%d:%H:%M:%S")
+	if unlocked < end and now > end:
+		logtime = (now - end).total_seconds()
+	else:
+		logtime += (now - unlocked).total_seconds()
+	return logtime
 
 def get_logtime_by_date(logtime, date):
 	try:
@@ -59,15 +53,39 @@ def get_logtime_by_date(logtime, date):
 		print("Invalid format: use HH:MM")
 		exit(1)
 
-def main():
-	logtime = get_new_logtime()
-	if logtime == -1:
-		print("No logs found.")
-		return
+def get_logdata():
+	if os.path.exists(LOGPATH):
+		with open(LOGPATH, "r") as f:
+			logs = f.read().split(" ")
+			return logs[0], logs[1]
+	else:
+		print("No", LOGFILE)
+		return 0, ""
 
+def set_logtime(logtime):
+	logtime_secs = 0
+	with open(LOGPATH, "r") as f:
+		lockscreen = f.read().split(" ")[1]
+	with open(LOGPATH, "w") as f:
+		logtime = logtime.split(":")
+		if len(logtime) > 1:
+			logtime_secs = int(logtime[0]) * 3600 + int(logtime[1]) * 60
+		else:
+			logtime_secs = int(logtime[0]) * 3600
+		f.write(f"{logtime_secs} {lockscreen}")
+		return logtime_secs, lockscreen
+
+def main():
 	if len(sys.argv) > 1:
-		logtime = get_logtime_by_date(logtime, sys.argv[1])
-	
+		if sys.argv[1] == "s" or sys.argv[1] == "set":
+			logtime, lockscreen = set_logtime(sys.argv[2])
+			logtime = get_new_logtime(logtime, lockscreen)
+		else:
+			logtime = get_logtime_by_date(logtime, sys.argv[1])
+	else:
+		logtime, lockscreen = get_logdata()
+		logtime = get_new_logtime(logtime, lockscreen)
+
 	hours = int(logtime // 3600)
 	minutes = int(logtime // 60 % 60)
 	seconds = int(logtime % 60)
