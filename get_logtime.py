@@ -76,15 +76,14 @@ def set_logtime(logtime):
 		return logtime_secs, lockscreen
 
 def main():
+	logtime, lockscreen = get_logdata()
+	logtime = get_new_logtime(logtime, lockscreen)
 	if len(sys.argv) > 1:
 		if sys.argv[1] == "s" or sys.argv[1] == "set":
 			logtime, lockscreen = set_logtime(sys.argv[2])
 			logtime = get_new_logtime(logtime, lockscreen)
 		else:
 			logtime = get_logtime_by_date(logtime, sys.argv[1])
-	else:
-		logtime, lockscreen = get_logdata()
-		logtime = get_new_logtime(logtime, lockscreen)
 
 	hours = int(logtime // 3600)
 	minutes = int(logtime // 60 % 60)
