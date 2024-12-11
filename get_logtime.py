@@ -7,6 +7,9 @@ import os
 LOGFILE = "~/.screen.log"
 LOGPATH = os.path.expanduser(LOGFILE)
 
+def get_current_time():
+	return datetime.datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
+
 def get_logtime_end_date():
 	now = datetime.datetime.now()
 	month = now.month
@@ -63,9 +66,13 @@ def get_logdata():
 		return 0, ""
 
 def set_logtime(logtime):
+	lockscreen = 0
 	logtime_secs = 0
-	with open(LOGPATH, "r") as f:
-		lockscreen = f.read().split(" ")[1]
+	if os.path.exists(LOGPATH):
+		with open(LOGPATH, "r") as f:
+			lockscreen = f.read().split(" ")[1]
+	else:
+		lockscreen = get_current_time()
 	with open(LOGPATH, "w") as f:
 		logtime = logtime.split(":")
 		if len(logtime) > 1:
